@@ -166,6 +166,7 @@ void *broadcast_handler(void *args)
 
     while (1)
     {
+        // read message from pipe
         memset(buffer, 0, sizeof(buffer));
         sz = read(buffer_queue[0], buffer, MAXDATASIZE - 1);
         if (sz <= 0)
@@ -179,12 +180,15 @@ void *broadcast_handler(void *args)
                 break;
             }
         }
+
+        // send message to all connected client
         else
         {
             for (int i = 0; i < MAX_CONNECTIONS; i++)
             {
                 if (connections[i].msgsock > 0)
                 {
+                    // if failed to send message, then remove the client and cancel the thread
                     if (send_msg(connections[i].msgsock, buffer) < 0)
                     {
                         pthread_cancel(connections[i].thread_id);
@@ -194,6 +198,8 @@ void *broadcast_handler(void *args)
             }
         }
     }
+
+    // Oops, we should never run to this point
     printf("Exception!\n");
     close(buffer_queue[0]);
     close(buffer_queue[1]);
@@ -292,7 +298,8 @@ int main(int argc, char **argv)
 
     }
 
-    // trap here
+    // We never expect to run our code here, so we should trap our code at this point and
+    // wait for all threads exit
     printf("Server Error\n");
     for (int i = 0; i < MAX_CONNECTIONS; i++)
     {

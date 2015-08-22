@@ -122,12 +122,6 @@ int send_msg(int msgsock, char *msg)
     // write to sock
     ret = write(msgsock, msg, strlen(msg));
 
-
-    if (ret < 0)
-    {
-        perror("write");
-    }
-
     return ret;
 }
 

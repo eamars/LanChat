@@ -239,8 +239,14 @@ void *request_handler(void *args)
 
     }
 
-    printf("[%s:%d] lost\n", client->ipstr, client->port);
+    // close the connection
     close(client->msgsock);
+
+    // broadcast
+    sprintf(buffer, "[%s:%d] lost", client->ipstr, client->port);
+    printf("%s\n", buffer);
+    broadcast(NULL, buffer);
+
     pthread_exit(NULL);
 }
 
